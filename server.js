@@ -1,4 +1,5 @@
-﻿var express = require('express');
+﻿"use strict";
+var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var fs = require("fs");
@@ -60,7 +61,7 @@ function getRunningTimes(username, enterDate, res) {
     db.serialize(function () {
         db.all('SELECT username, ticket, start FROM time WHERE username=?', username, function (err, rows) {
             var output = "";
-            for (let row of rows) {
+            for (var row of rows) {
                 output += row.ticket + ": " + getTimeDifference(new Date(row.start), enterDate) + "\r\n";
             }
             res.end(output);

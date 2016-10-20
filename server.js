@@ -29,7 +29,7 @@ app.post('/punch', function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     var enterDate = new Date();
     db.serialize(function () {
-        db.get('SELECT username, ticket, start as start FROM time', function (err, row) {
+        db.get('SELECT username, ticket, start FROM time WHERE username=' + req.body.user_name + ' ticket=' + req.body.text, function (err, row) {
             if (err) throw err;
             if (row == null) {
                 var stmt = db.prepare('INSERT into time (username,ticket,start) VALUES(?,?,?)');

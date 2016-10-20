@@ -31,11 +31,11 @@ app.post('/punch', function (req, res) {
     var enterDate = new Date();
     db.serialize(function () {
         if (req.body == null || (req.body.user_name == null && req.body.text == null)) return res.end('Please provide valid parameters');
-        if (req.body.user_name != null && req.body.text === "status") return getRunningTimes(req.body.user_name, enterDate,res);
-        db.get('SELECT username, ticket, start FROM time WHERE username=? AND ticket=?',[req.body.user_name,req.body.text], function (err, row) {
+        if (req.body.user_name != null && req.body.text === "status") return getRunningTimes(req.body.user_name, enterDate, res);
+        db.get('SELECT username, ticket, start FROM time WHERE username=? AND ticket=?', [req.body.user_name, req.body.text], function (err, row) {
             if (err) throw err;
             if (row == null) {
-                addNew(req,enterDate,res);
+                addNew(req, enterDate, res);
             } else {
                 returnExisting(row, enterDate, res);
             }
@@ -43,24 +43,24 @@ app.post('/punch', function (req, res) {
     });
 }).listen(port);
 
-function addNew(req,enterDate,res) {
+function addNew(req, enterDate, res) {
     var stmt = db.prepare('INSERT into time (username,ticket,start) VALUES(?,?,?)');
     stmt.run([req.body.user_name, req.body.text, enterDate.getTime()]);
     stmt.finalize();
-    res.end(req.body.text + ": started - " + enterDate);
+    res.end('START: ' + req.body.text + " - " + enterDate);
 }
 
-function returnExisting(row,enterDate,res) {
+function returnExisting(row, enterDate, res) {
     var stmt = db.prepare('DELETE FROM time WHERE username=? AND ticket=?');
     stmt.run([row.username, row.ticket]);
     stmt.finalize();
-    res.end(row.ticket + ": " + getTimeDifference(new Date(row.start), enterDate));
+    res.end('END: ' + row.ticket + " - " + getTimeDifference(new Date(row.start), enterDate));
 }
 
 function getRunningTimes(username, enterDate, res) {
     db.serialize(function () {
         db.all('SELECT username, ticket, start FROM time WHERE username=?', username, function (err, rows) {
-            var output = "";
+            var output = "Running Clocks:\r\n";
             for (var row of rows) {
                 output += row.ticket + ": " + getTimeDifference(new Date(row.start), enterDate) + "\r\n";
             }

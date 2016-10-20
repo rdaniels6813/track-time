@@ -29,22 +29,44 @@ app.post('/punch', function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     var enterDate = new Date();
     db.serialize(function () {
-        db.get('SELECT username, ticket, start FROM time WHERE username=' + req.body.user_name + ' ticket=' + req.body.text, function (err, row) {
+        if (req.body == null || (req.body.user_name == null && req.body.text == null)) return res.end('Please provide valid parameters');
+        if (req.body.user_name != null && req.body.text == null) return getRunningTimes(req.body.user_name, enterDate,res);
+        db.get('SELECT username, ticket, start FROM time WHERE username=? AND ticket=?',[req.body.user_name,req.body.text], function (err, row) {
             if (err) throw err;
             if (row == null) {
-                var stmt = db.prepare('INSERT into time (username,ticket,start) VALUES(?,?,?)');
-                stmt.run([req.body.user_name, req.body.text, enterDate.getTime()]);
-                stmt.finalize();
-                res.end(req.body.text + ": started - " + enterDate);
+                addNew(req,enterDate,res);
             } else {
-                var stmt = db.prepare('DELETE FROM time WHERE username=? AND ticket=?');
-                stmt.run([row.username, row.ticket]);
-                stmt.finalize();
-                res.end(row.ticket + ": " + getTimeDifference(new Date(row.start), enterDate));
+                returnExisting(row, enterDate, res);
             }
         });
     });
 }).listen(port);
+
+function addNew(req,enterDate,res) {
+    var stmt = db.prepare('INSERT into time (username,ticket,start) VALUES(?,?,?)');
+    stmt.run([req.body.user_name, req.body.text, enterDate.getTime()]);
+    stmt.finalize();
+    res.end(req.body.text + ": started - " + enterDate);
+}
+
+function returnExisting(row,enterDate,res) {
+    var stmt = db.prepare('DELETE FROM time WHERE username=? AND ticket=?');
+    stmt.run([row.username, row.ticket]);
+    stmt.finalize();
+    res.end(row.ticket + ": " + getTimeDifference(new Date(row.start), enterDate));
+}
+
+function getRunningTimes(username, enterDate, res) {
+    db.serialize(function () {
+        db.all('SELECT username, ticket, start FROM time WHERE username=?', username, function (err, rows) {
+            var output = "";
+            for (let row of rows) {
+                output += row.ticket + ": " + getTimeDifference(new Date(row.start), enterDate) + "\r\n";
+            }
+            res.end(output);
+        });
+    });
+}
 
 function getTimeDifference(timeStart, timeEnd) {
     var hourDiff = timeEnd - timeStart; //in ms

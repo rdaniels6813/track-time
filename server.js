@@ -31,7 +31,7 @@ app.post('/punch', function (req, res) {
     var enterDate = new Date();
     db.serialize(function () {
         if (req.body == null || (req.body.user_name == null && req.body.text == null)) return res.end('Please provide valid parameters');
-        if (req.body.user_name != null && req.body.text == null) return getRunningTimes(req.body.user_name, enterDate,res);
+        if (req.body.user_name != null && req.body.text === "status") return getRunningTimes(req.body.user_name, enterDate,res);
         db.get('SELECT username, ticket, start FROM time WHERE username=? AND ticket=?',[req.body.user_name,req.body.text], function (err, row) {
             if (err) throw err;
             if (row == null) {

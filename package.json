@@ -1,0 +1,14 @@
+{
+  "name": "track-time",
+  "version": "0.0.1",
+  "description": "TrackTime",
+  "main": "server.js",
+  "author": {
+    "name": "rdaniels6813"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "sqlite3": "^3.1.6"
+  }
+}

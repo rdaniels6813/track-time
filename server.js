@@ -70,13 +70,21 @@ function getRunningTimes(username, enterDate, res) {
 }
 
 function getTimeDifference(timeStart, timeEnd) {
-    var hourDiff = timeEnd - timeStart; //in ms
-    var secDiff = hourDiff / 1000; //in s
-    var minDiff = hourDiff / 60 / 1000; //in minutes
-    var hDiff = hourDiff / 3600 / 1000; //in hours
-    var humanReadable = {};
-    humanReadable.hours = Math.floor(hDiff);
-    humanReadable.minutes = Math.floor(minDiff - 60 * humanReadable.hours);
-    humanReadable.seconds = Math.floor(secDiff - 60 * humanReadable.minutes);
-    return humanReadable.hours + "h " + humanReadable.minutes + "m " + humanReadable.seconds + "s";
+    var msDiff = timeEnd - timeStart; //in ms
+    var days = Math.floor(msDiff / 1000 / 60 / 60 / 24);
+    var hours = Math.floor(msDiff / 1000 / 60 / 60 % 24);
+    var minutes = Math.floor(msDiff / 1000 / 60 % 60);
+    var seconds = Math.floor(msDiff / 1000 % 60);
+    var humanReadable = {
+        days,
+        hours,
+        minutes,
+        seconds
+    };
+    var result = "";
+    if (days > 0) result += humanReadable.days + "days ";
+    if (hours > 0) result += humanReadable.hours + "hours ";
+    if (minutes > 0) result += humanReadable.minutes + "minutes ";
+    if (seconds > 0) result += humanReadable.seconds + "seconds ";
+    return result;
 }

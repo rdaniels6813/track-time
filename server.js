@@ -75,16 +75,10 @@ function getTimeDifference(timeStart, timeEnd) {
     var hours = Math.floor(msDiff / 1000 / 60 / 60 % 24);
     var minutes = Math.floor(msDiff / 1000 / 60 % 60);
     var seconds = Math.floor(msDiff / 1000 % 60);
-    var humanReadable = {
-        days,
-        hours,
-        minutes,
-        seconds
-    };
     var result = "";
-    if (days > 0) result += humanReadable.days + "days ";
-    if (hours > 0) result += humanReadable.hours + "hours ";
-    if (minutes > 0) result += humanReadable.minutes + "minutes ";
-    if (seconds > 0) result += humanReadable.seconds + "seconds ";
+    if (days > 0) result += days + " days, ";
+    if (hours > 0) result += hours + " hours, ";
+    if (minutes > 0) result += minutes + " minutes, ";
+    if (seconds > 0) result += seconds + " seconds ";
     return result;
 }
